@@ -97,7 +97,8 @@ st.dataframe(raw_df)
 
 # Train & Forecast
 model, forecast = train_model(daily)
-filtered_forecast = forecast[mask]
+mask1 = (forecast['ds'] >= pd.to_datetime(start_date)) & (forecast['ds'] <= pd.to_datetime(end_date))
+filtered_forecast = forecast[mask1]
 # Plot trend
 st.subheader("Baseline Trend + Forecast")
 # fig1 = model.plot(forecast)
