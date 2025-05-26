@@ -19,6 +19,7 @@ def load_data():
 @st.cache_data
 def train_model(daily):
     # define holidays as above...
+
     sri_lanka_holidays = pd.DataFrame([
     # 2024 holidays
     {'ds': '2024-01-15', 'holiday': 'tamil_thai_pongal'},            # Tamil Thai Pongal Day
@@ -87,39 +88,18 @@ st.title("Daily Weight Forecast")
 raw_df, daily = load_data()
 
 # Date filter
-# start_date, end_date = st.sidebar.date_input("Select date range",
-#                                              [daily['ds'].min(), daily['ds'].max()])
-# mask = (daily['ds'] >= pd.to_datetime(start_date)) & (daily['ds'] <= pd.to_datetime(end_date))
+start_date, end_date = st.sidebar.date_input("Select date range",
+                                             [daily['ds'].min(), daily['ds'].max()])
+mask = (daily['ds'] >= pd.to_datetime(start_date)) & (daily['ds'] <= pd.to_datetime(end_date))
 
-
+# Show raw data
+st.subheader("Original Data")
+st.dataframe(raw_df)
 
 # Train & Forecast
 model, forecast = train_model(daily)
-# mask1 = (forecast['ds'] >= pd.to_datetime(start_date)) & (forecast['ds'] <= pd.to_datetime(end_date))
-# filtered_forecast = forecast[mask1]
+
 # Plot trend
-
-# Sidebar slider
-min_date = daily['ds'].min()
-max_date = forecast['ds'].max()
-start_date, end_date = st.sidebar.slider(
-    "Select date range",
-    value=(min_date, max_date),
-    min_value=min_date,
-    max_value=max_date,
-    format="YYYY-MM-DD"
-)
-
-# Masks
-mask_raw = (raw_df['Dispatched'] >= start_date) & (raw_df['Dispatched'] <= end_date)
-mask_fcst = (forecast['ds']      >= start_date) & (forecast['ds']      <= end_date)
-# Show raw data
-st.subheader("Original Data")
-# st.dataframe(raw_df)
-st.dataframe(raw_df.loc[mask_raw])
-
-
-
 st.subheader("Baseline Trend + Forecast")
 # fig1 = model.plot(forecast)
 # st.pyplot(fig1)
@@ -133,21 +113,9 @@ def plot_forecast_with_legend(forecast_df):
     fig.update_layout(title='Forecast with Trend and Uncertainty', xaxis_title='Date', yaxis_title='Weight (Kg)')
     return fig
 
-# st.plotly_chart(plot_forecast_with_legend(filtered_forecast))
-st.plotly_chart(plot_forecast_with_legend(forecast.loc[mask_fcst]))
+st.plotly_chart(plot_forecast_with_legend(forecast))
+
 # Plot components
 st.subheader("Decomposed Components")
-# fig2 = model.plot_components(forecast)
-# st.pyplot(fig2)
-def plot_decomposed_components(forecast_df):
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(x=forecast_df['ds'], y=forecast_df['weekly'], name='Weekly Seasonality'))
-    if 'holidays' in forecast_df.columns:
-        fig.add_trace(go.Scatter(x=forecast_df['ds'], y=forecast_df['holidays'], name='Holiday Effect'))
-
-    fig.update_layout(title='Decomposed Components', xaxis_title='Date', yaxis_title='Effect on Weight')
-    return fig
-
-# st.plotly_chart(plot_decomposed_components(filtered_forecast))
-st.plotly_chart(plot_decomposed_components(forecast.loc[mask_fcst]))
+fig2 = model.plot_components(forecast)
+st.pyplot(fig2)
