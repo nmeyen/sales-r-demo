@@ -100,10 +100,32 @@ model, forecast = train_model(daily)
 
 # Plot trend
 st.subheader("Baseline Trend + Forecast")
-fig1 = model.plot(forecast)
-st.pyplot(fig1)
+# fig1 = model.plot(forecast)
+# st.pyplot(fig1)
+# Trend and forecast with legend
+def plot_forecast_with_legend(forecast_df):
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=forecast_df['ds'], y=forecast_df['yhat'], mode='lines', name='Forecast (yhat)'))
+    fig.add_trace(go.Scatter(x=forecast_df['ds'], y=forecast_df['trend'], mode='lines', name='Trend'))
+    fig.add_trace(go.Scatter(x=forecast_df['ds'], y=forecast_df['yhat_upper'], mode='lines', name='Upper Bound', line=dict(dash='dot')))
+    fig.add_trace(go.Scatter(x=forecast_df['ds'], y=forecast_df['yhat_lower'], mode='lines', name='Lower Bound', line=dict(dash='dot')))
+    fig.update_layout(title='Forecast with Trend and Uncertainty', xaxis_title='Date', yaxis_title='Weight (Kg)')
+    return fig
+
+st.plotly_chart(plot_forecast_with_legend(forecast))
 
 # Plot components
 st.subheader("Decomposed Components")
-fig2 = model.plot_components(forecast)
-st.pyplot(fig2)
+# fig2 = model.plot_components(forecast)
+# st.pyplot(fig2)
+def plot_decomposed_components(forecast_df):
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=forecast_df['ds'], y=forecast_df['weekly'], name='Weekly Seasonality'))
+    if 'holidays' in forecast_df.columns:
+        fig.add_trace(go.Scatter(x=forecast_df['ds'], y=forecast_df['holidays'], name='Holiday Effect'))
+
+    fig.update_layout(title='Decomposed Components', xaxis_title='Date', yaxis_title='Effect on Weight')
+    return fig
+
+st.plotly_chart(plot_decomposed_components(forecast))
