@@ -97,7 +97,7 @@ st.dataframe(raw_df)
 
 # Train & Forecast
 model, forecast = train_model(daily)
-
+filtered_forecast = forecast[mask]
 # Plot trend
 st.subheader("Baseline Trend + Forecast")
 # fig1 = model.plot(forecast)
@@ -112,7 +112,7 @@ def plot_forecast_with_legend(forecast_df):
     fig.update_layout(title='Forecast with Trend and Uncertainty', xaxis_title='Date', yaxis_title='Weight (Kg)')
     return fig
 
-st.plotly_chart(plot_forecast_with_legend(forecast))
+st.plotly_chart(plot_forecast_with_legend(filtered_forecast))
 
 # Plot components
 st.subheader("Decomposed Components")
@@ -128,4 +128,4 @@ def plot_decomposed_components(forecast_df):
     fig.update_layout(title='Decomposed Components', xaxis_title='Date', yaxis_title='Effect on Weight')
     return fig
 
-st.plotly_chart(plot_decomposed_components(forecast))
+st.plotly_chart(plot_decomposed_components(filtered_forecast))
