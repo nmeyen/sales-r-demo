@@ -99,6 +99,40 @@ st.dataframe(raw_df)
 # Train & Forecast
 model, forecast = train_model(daily)
 
+def plot_actual_vs_pred(daily_df: pd.DataFrame, forecast_df: pd.DataFrame):
+    # Merge actuals with predictions on date
+    df = pd.merge(
+        daily_df[['ds', 'y']], 
+        forecast_df[['ds', 'yhat']], 
+        on='ds', 
+        how='inner'
+    )
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df['ds'], y=df['y'], 
+        mode='lines+markers', 
+        name='Actual'
+    ))
+    fig.add_trace(go.Scatter(
+        x=df['ds'], y=df['yhat'], 
+        mode='lines', 
+        name='Predicted'
+    ))
+    fig.update_layout(
+        title='Actual vs Predicted Daily Weight',
+        xaxis_title='Date',
+        yaxis_title='Weight (Kg)',
+        legend=dict(x=0.02, y=0.98)
+    )
+    return fig
+# In your Streamlit layout, after filtering date range:
+st.subheader("Actual vs Predicted")
+fig = plot_actual_vs_pred(
+    daily, 
+    forecast
+)
+st.plotly_chart(fig, use_container_width=True)
+
 # Plot trend
 st.subheader("Baseline Trend + Forecast")
 # fig1 = model.plot(forecast)
